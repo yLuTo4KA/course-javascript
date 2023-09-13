@@ -60,10 +60,9 @@ function returnFnResult(func) {
    console.log(f()); // выведет 13
  */
 function returnCounter(int = 0) {
-let i = 0;
+
 return function f(){
-  i++;
-  return int + i;
+  return ++int;
 }
 }
 
