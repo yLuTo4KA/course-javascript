@@ -6,7 +6,7 @@ import friendsDB from './friends.json';
 export default {
   getRandomElement(array) {
     if (!Array.isArray(array) || array.length == 0) {
-      throw new Error('empty array')
+      return null;
   }
   const rand = parseInt(Math.random() * array.length);
   return array[rand]
@@ -16,8 +16,8 @@ export default {
     const photosList = photosDB[friend.id];
     const photo = this.getRandomElement(photosList);
     return {
-        friend: friend.firstName,
-        url:  (photosList.length !== 0) ? photo.url : 'user photo not found'
+        friend: friend,
+        url: photo.url
     }
   },
 };
