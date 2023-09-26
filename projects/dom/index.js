@@ -11,7 +11,11 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
+  const element = document.createElement('div')
+  element.textContent = text;
+  return element;
 }
+
 
 /*
  Задание 2:
@@ -22,6 +26,7 @@ function createDivWithText(text) {
    prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
+  where.prepend(what);
 }
 
 /*
@@ -44,6 +49,18 @@ function prepend(what, where) {
    findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
+  const result = [];
+  const whereChildren = where.children;
+  for (let i = 0; i <= whereChildren.length; i++) {
+    let max = whereChildren.length - 1;
+    if (i < max) {
+      if (whereChildren[i + 1].tagName === 'P') {
+        result.push(whereChildren[i])
+      }
+    }
+  }
+  return result;
+
 }
 
 /*
@@ -66,7 +83,7 @@ function findAllPSiblings(where) {
 function findError(where) {
   const result = [];
 
-  for (const child of where.childNodes) {
+  for (const child of where.children) {
     result.push(child.textContent);
   }
 
@@ -86,6 +103,13 @@ function findError(where) {
    должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+  const whereChilds = where.childNodes;
+  for (let i = 0; i < whereChilds.length; i++) {
+    if (whereChilds[i].nodeName === '#text') {
+      whereChilds[i].remove();
+    }
+  }
+  return whereChilds
 }
 
 /*
@@ -109,6 +133,55 @@ function deleteTextNodes(where) {
    }
  */
 function collectDOMStat(root) {
+    const rootChildNode = root.childNodes;
+    const rootChilds = root.children
+    const tagsList = {};
+    const classList = {};
+    const textCount = rootChildNode.length;
+    // инициализируем значения в обьекты.
+    for (let i = 0; i < rootChilds.length; i++) {
+        const childTagName = rootChilds[i].tagName;
+        tagsList[childTagName] = 0;
+        if (rootChilds[i].classList.length > 0) {
+            for (let j = 0; j < rootChilds[i].classList.length; j++) {
+                classList[rootChilds[i].classList[j]] = 0;
+            }
+        }
+
+    }
+    // end for
+
+    // записываем значения родителя
+    tagsList[root.tagName] = 1;
+    for (let i = 0; i < root.classList.length; i++) {
+        classList[root.classList[i]] = 1;
+    }
+    // end
+    // подсчитываем кол-во тэгов.
+    for (let key in tagsList) {
+        for (let el of rootChilds) {
+            if (el.tagName === key) {
+                tagsList[key] += 1
+            }
+        }
+    }
+    //end for
+    // подсчитываем кол-во классов.
+    for (let key in classList) {
+        for (let el of rootChilds) {
+            for (let i = 0; i < el.classList.length; i++) {
+                if (el.classList[i] === key) {
+                    classList[key] += 1;
+                }
+            }
+        }
+    }
+    //end for
+    return {
+        tags: tagsList,
+        classes: classList,
+        texts: textCount
+    }
 }
 
 export {
