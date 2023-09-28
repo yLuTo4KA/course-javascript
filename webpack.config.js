@@ -61,8 +61,14 @@ module.exports = {
         options: { cacheDirectory: true },
       },
       {
-        test: /projects\/.+\.html$/,
-        use: [{ loader: './scripts/html-inject-loader.js' }, { loader: 'html-loader' }],
+        test: /\.html/,
+        include: [path.resolve(__dirname, 'projects')],
+        use: [
+          { loader: './scripts/html-inject-loader.js' },
+          {
+            loader: 'raw-loader',
+          },
+        ],
       },
       {
         test: /\.(jpe?g|png|gif|svg|eot|ttf|woff|woff2)$/i,
@@ -79,6 +85,7 @@ module.exports = {
           { loader: 'handlebars-loader' },
         ],
       },
+      
       {
         test: /\.hbs$/,
         exclude: /\.html\.hbs$/,
