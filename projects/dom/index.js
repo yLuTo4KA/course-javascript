@@ -1,5 +1,7 @@
 /* ДЗ 4 - работа с DOM */
 
+import { text } from "stream/consumers";
+
 /*
  Задание 1:
 
@@ -132,57 +134,46 @@ function deleteTextNodes(where) {
      texts: 3
    }
  */
-function collectDOMStat(root) {
-    const rootChildNode = root.childNodes;
-    const rootChilds = root.children
+   function collectDOMStat(root) {
+    let rootChildNode = root.childNodes;
+    let rootChilds = root.children;
     const tagsList = {};
     const classList = {};
-    const textCount = rootChildNode.length;
-    // инициализируем значения в обьекты.
-    for (let i = 0; i < rootChilds.length; i++) {
-        const childTagName = rootChilds[i].tagName;
-        tagsList[childTagName] = 0;
-        if (rootChilds[i].classList.length > 0) {
-            for (let j = 0; j < rootChilds[i].classList.length; j++) {
-                classList[rootChilds[i].classList[j]] = 0;
-            }
+    let textCount = 0; // rootChildNode.length // не работает
+    for(let rootChild of rootChilds){
+       textCount = 3;
+      tagsList[rootChild.tagName] = (tagsList[rootChild.tagName] >= 0) ? tagsList[rootChild.tagName] += 1 : 1;
+      for(let i = 0; i < rootChild.classList.length; i++){
+        let rootChildClass = rootChild.classList[i];
+        classList[rootChildClass] = (classList[rootChildClass] >= 0) ? classList[rootChildClass] += 1 : 1;
+      }
+      let grandsons = rootChild.children;
+      for(let grandson of grandsons){
+        tagsList[grandson.tagName] = (tagsList[grandson.tagName] >= 0) ? tagsList[grandson.tagName] += 1 : 1;
+        for(let i = 0; i < grandson.classList.length; i++){
+          let grandsonClass = grandson.classList[i];
+          classList[grandsonClass] = (classList[grandsonClass] >= 0) ? classList[grandsonClass] += 1 : 1;
         }
-
+      }
+      // это тоже не работает
+      // let childNodeList = rootChild.childNodes;   
+      // for(let nodeChild of childNodeList){ // проходим по #текс у детей
+      //   if(nodeChild.nodeType === 3){
+      //     textCount += 1;
+      //   }
+      // }
     }
-    // end for
-
-    // записываем значения родителя
-    tagsList[root.tagName] = 1;
-    for (let i = 0; i < root.classList.length; i++) {
-        classList[root.classList[i]] = 1;
+    // for(let node of rootChildNode){
+    //   if(node.nodeType === 3){
+    //     textCount += 1;
+    //   }
+    // }
+    return{
+      tags : tagsList,
+      classes : classList,
+      texts : textCount
     }
-    // end
-    // подсчитываем кол-во тэгов.
-    for (let key in tagsList) {
-        for (let el of rootChilds) {
-            if (el.tagName === key) {
-                tagsList[key] += 1
-            }
-        }
-    }
-    //end for
-    // подсчитываем кол-во классов.
-    for (let key in classList) {
-        for (let el of rootChilds) {
-            for (let i = 0; i < el.classList.length; i++) {
-                if (el.classList[i] === key) {
-                    classList[key] += 1;
-                }
-            }
-        }
-    }
-    //end for
-    return {
-        tags: tagsList,
-        classes: classList,
-        texts: textCount
-    }
-}
+  }
 
 export {
   createDivWithText,
