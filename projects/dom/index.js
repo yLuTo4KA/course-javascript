@@ -107,11 +107,12 @@ function findError(where) {
 function deleteTextNodes(where) {
   const whereChilds = where.childNodes;
   for (let i = 0; i < whereChilds.length; i++) {
-    if (whereChilds[i].nodeName === '#text') {
+    if (whereChilds[i].nodeType === 3) {
       whereChilds[i].remove();
+      i--;
     }
   }
-  return whereChilds
+  return whereChilds;
 }
 
 /*
@@ -134,46 +135,30 @@ function deleteTextNodes(where) {
      texts: 3
    }
  */
-   function collectDOMStat(root) {
-    let rootChildNode = root.childNodes;
-    let rootChilds = root.children;
-    const tagsList = {};
-    const classList = {};
-    let textCount = 0; // rootChildNode.length // не работает
-    for(let rootChild of rootChilds){
-       textCount = 3;
-      tagsList[rootChild.tagName] = (tagsList[rootChild.tagName] >= 0) ? tagsList[rootChild.tagName] += 1 : 1;
-      for(let i = 0; i < rootChild.classList.length; i++){
-        let rootChildClass = rootChild.classList[i];
-        classList[rootChildClass] = (classList[rootChildClass] >= 0) ? classList[rootChildClass] += 1 : 1;
-      }
-      let grandsons = rootChild.children;
-      for(let grandson of grandsons){
-        tagsList[grandson.tagName] = (tagsList[grandson.tagName] >= 0) ? tagsList[grandson.tagName] += 1 : 1;
-        for(let i = 0; i < grandson.classList.length; i++){
-          let grandsonClass = grandson.classList[i];
-          classList[grandsonClass] = (classList[grandsonClass] >= 0) ? classList[grandsonClass] += 1 : 1;
+function collectDOMStat(root) {
+  const stat = {
+    tags: {},
+    classes: {},
+    texts: 0
+  };
+
+  function find(root) {
+    for (const child of root.childNodes) {
+      if (child.nodeType === 3) {
+        stat.texts++;
+      } else if (child.nodeType === 1) {
+        stat.tags[child.tagName] = (stat.tags[child.tagName] >= 0) ? stat.tags[child.tagName] + 1 : 1;
+
+        for (const className of child.classList) {
+          stat.classes[className] = (stat.classes[className] >= 0) ? stat.classes[className] + 1 : 1;
         }
+        find(child);
       }
-      // это тоже не работает
-      // let childNodeList = rootChild.childNodes;   
-      // for(let nodeChild of childNodeList){ // проходим по #текс у детей
-      //   if(nodeChild.nodeType === 3){
-      //     textCount += 1;
-      //   }
-      // }
     }
-    // for(let node of rootChildNode){
-    //   if(node.nodeType === 3){
-    //     textCount += 1;
-    //   }
-    // }
-    return{
-      tags : tagsList,
-      classes : classList,
-      texts : textCount
-    }
-  }
+  };
+  find(root);
+  return stat;
+}
 
 export {
   createDivWithText,
