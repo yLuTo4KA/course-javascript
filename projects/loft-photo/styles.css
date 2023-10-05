@@ -120,6 +120,7 @@ a {
     height: 40px;
     border-radius: 50%;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .page-main .component-header-name {

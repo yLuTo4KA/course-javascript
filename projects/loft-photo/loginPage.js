@@ -8,10 +8,10 @@ export default {
         document
             .querySelector('.page-login-button')
             .addEventListener('click', async () => {
-                await model.login()
-                const friendsList = await model.init('friends.get', {fields: 'city, country'})
-                await model.getFriendPhotos(277831931);
-                // model.init('users.get', {});
+                await model.login();
+                await model.init();
+                pages.openPage('main');
+                await mainPage.getNextPhoto()
             });
     }
 }
