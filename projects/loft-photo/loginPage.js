@@ -8,10 +8,10 @@ export default {
         document
             .querySelector('.page-login-button')
             .addEventListener('click', async () => {
-                await model.login();
-                model.friends = await model.init('friends.get', { fields: 'photo_50' });
+                await model.login()
+                await model.init();
                 pages.openPage('main');
-                await mainPage.getNextPhoto()
+                await mainPage.getNextPhoto();
             });
     }
 }
