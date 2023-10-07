@@ -2,10 +2,11 @@
 VK.init({
   apiId: 51763030
 });
-let friends;
+
 
 // const friendsList = await this.init('friends.get', { fields: 'photo_100' });
 export default {
+  friends: [],
   getRandomElement(array) {
     if (!Array.isArray(array) || array.length == 0) {
       return null;
@@ -14,8 +15,7 @@ export default {
     return array[rand]
   },
   async getNextPhoto() {
-    console.log(friends)
-    const randFriend = this.getRandomElement(friends.items);
+    const randFriend = this.getRandomElement(this.friends.items);
     const photosList = await this.getFriendPhotos(randFriend.id);
     if(photosList.length === 0){
       return {
@@ -24,9 +24,7 @@ export default {
         url: 'https://mirtex.ru/wp-content/uploads/2023/04/unnamed.jpg'
       }
     }
-    console.log(photosList)
     const photo = this.getRandomElement(photosList);
-    console.log(photo)
     if(photo){
       return {
         friend: randFriend,
@@ -53,23 +51,25 @@ export default {
     })
   },
 
-  async init(method = 'friends.get', params = { fields: 'photo_50' }) {
+  async init(method, params) {
     params.v = '5.81';
     return new Promise((resolve, reject) => {
       VK.api(method, params, (data) => {
         if (data.error) {
           reject(data.error);
         } else {
-          friends = data.response;
           resolve(data.response);
         }
       })
     })
   },
 
-  photoCache() { },
+  photoCache() {},
 
   async getFriendPhotos(id) {
+    // if(this.photoCache[id]){
+    //   return this.photoCache[id];
+    // }
     const friendsPhoto = await this.init('photos.get', { owner_id: id, album_id: 'profile' });
     const photos = friendsPhoto.items;
     const sortedPhotos = [];
@@ -88,5 +88,6 @@ export default {
     // this.photoCache[id] = photos;
 
     // return photos;
+  
   }
 };

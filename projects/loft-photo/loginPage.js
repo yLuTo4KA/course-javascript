@@ -9,7 +9,7 @@ export default {
             .querySelector('.page-login-button')
             .addEventListener('click', async () => {
                 await model.login();
-                await model.init();
+                model.friends = await model.init('friends.get', { fields: 'photo_50' });
                 pages.openPage('main');
                 await mainPage.getNextPhoto()
             });
