@@ -8,10 +8,15 @@ export default {
         document
             .querySelector('.page-login-button')
             .addEventListener('click', async () => {
-                await model.login()
-                await model.init();
-                pages.openPage('main');
-                await mainPage.getNextPhoto();
+                try {
+                    await model.login();
+                    await model.init();
+                    location.hash = '#main';
+                    await mainPage.getNextPhoto();
+                }catch(error){
+                    console.log(error);
+                    location.hash = '#login';
+                }
             });
     }
 }

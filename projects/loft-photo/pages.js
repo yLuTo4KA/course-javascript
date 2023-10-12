@@ -1,15 +1,20 @@
 const pagesMap = {
-    login: '.page-login',
-    main: '.page-main',
-    profile: '.page-profile',
+    '#login': '.page-login',
+    '#main': '.page-main',
+    '#profile': '.page-profile',
 };
 export default {
     openPage(name) {
-        let allPage = document.querySelectorAll('.page');
-        let openingPage = document.querySelector(pagesMap[name])
-        allPage.forEach(page => {
-            page.classList.add('hidden');
-        })
-        openingPage.classList.remove('hidden');
+        const pageName = pagesMap[name]
+        if(pageName){
+            const openingPage = document.querySelector(pageName)
+            if(openingPage){
+                if(this.currentPage){
+                    this.currentPage.classList.add('hidden');
+                }
+                openingPage.classList.remove('hidden');
+                this.currentPage = openingPage;
+            }
+        }
     }
 };

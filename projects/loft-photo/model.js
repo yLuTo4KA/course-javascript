@@ -2,7 +2,6 @@ VK.init({
   apiId: 51763030
 });
 export default {
-  // friends: [],
   getRandomElement(array) {
     if (!Array.isArray(array) || array.length == 0) {
       return null;
@@ -24,32 +23,9 @@ export default {
     const size = this.findSize(photo);
     return {
       friend: friend,
-      id: photo.id,
+      id: friend.id,
       url: size.url
     }
-    // const randFriend = this.getRandomElement(this.friends.items);
-    // const photosList = await this.getFriendPhotos(randFriend.id);
-    // if (photosList.length === 0) {
-    //   return {
-    //     friend: randFriend,
-    //     id: randFriend.id,
-    //     url: 'https://mirtex.ru/wp-content/uploads/2023/04/unnamed.jpg'
-    //   }
-    // }
-    // const photo = this.getRandomElement(photosList);
-    // if (photo) {
-    //   return {
-    //     friend: randFriend,
-    //     id: randFriend.id,
-    //     url: photo.url,
-    //   }
-    // } else {
-    //   return {
-    //     friend: randFriend,
-    //     id: randFriend.id,
-    //     url: 'https://mirtex.ru/wp-content/uploads/2023/04/unnamed.jpg',
-    //   }
-    // }
   },
   findSize(photo) {
     const size = photo.sizes.find((size) => size.width >= 360);
@@ -74,19 +50,21 @@ export default {
       }, 2 | 4)
     })
   },
+  logout(){
+    return new Promise((resolve, reject)=> {
+      VK.Auth.revokeGrants(data => {
+        if(!data.session){
+          resolve();
+        }else{
+          reject(new Error('Сначала авторизуйтесь!'))
+        }
+      })
+    })
+  },
   async init() {
     this.photoCache = {};
     this.friends = await this.getFriends();
-    // params.v = '5.81';
-    // return new Promise((resolve, reject) => {
-    //   VK.api(method, params, (data) => {
-    //     if (data.error) {
-    //       reject(data.error);
-    //     } else {
-    //       resolve(data.response);
-    //     }
-    //   })
-    // })
+    this.authorizeUser = await this.getUsers();
   },
   callApi(method, params) {
     params.v = params.v || '5.154';
@@ -106,6 +84,15 @@ export default {
     }
     return this.callApi('friends.get', params);
   },
+  getUsers(ids){
+    const params = {
+      fields: ['photo_50, photo_100'],
+    }
+    if(ids !== undefined){
+      params.user_ids = ids;
+    }
+    return this.callApi('users.get', params);
+  },
   getPhotos(id) {
     const params = {
       owner_id: id
@@ -120,27 +107,5 @@ export default {
     photos = await this.getPhotos(id);
     this.photoCache[id] = photos;
     return photos;
-    // if(this.photoCache[id]){
-    //   return this.photoCache[id];
-    // }
-    // const friendsPhoto = await this.init('photos.get', { owner_id: id, album_id: 'profile' });
-    // const photos = friendsPhoto.items;
-    // const sortedPhotos = [];
-    // photos.forEach(photo => {
-    //   for (let i = 0; i < photo.sizes.length; i++) {
-    //     if (photo.sizes[i].width >= 360) {
-    //       sortedPhotos.push(photo.sizes[i]);
-    //       break;
-    //     }
-    //   }
-    // })
-    // return sortedPhotos;
-    // if (photos) {
-    //   return photos;
-    // }
-    // this.photoCache[id] = photos;
-
-    // return photos;
-
   }
 };
