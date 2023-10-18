@@ -37,9 +37,9 @@ export default {
             location.hash = '#main';
         });
 
-        document.querySelector('.page-profile-exit').addEventListener('click', (e) => {
+        document.querySelector('.page-profile-exit').addEventListener('click', async (e) => {
             e.preventDefault();
-            model.logout();
+            await model.logout();
             location.hash = '#login';
         });
     }

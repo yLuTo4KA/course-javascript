@@ -29,9 +29,9 @@ export default {
   },
   findSize(photo) {
     const size = photo.sizes.find((size) => size.width >= 360);
-    if(!size){
+    if (!size) {
       return photo.sizes.reduce((biggest, current) => {
-        if(current.width > biggest.width){
+        if (current.width > biggest.width) {
           return current;
         }
         return biggest;
@@ -43,6 +43,7 @@ export default {
     return new Promise((resolve, reject) => {
       VK.Auth.login(data => {
         if (data.session) {
+          this.vkToken = data.session.sid;
           resolve();
         } else {
           reject(new Error('Ошибка авторизации!'));
@@ -50,16 +51,8 @@ export default {
       }, 2 | 4)
     })
   },
-  logout(){
-    return new Promise((resolve, reject)=> {
-      VK.Auth.revokeGrants(data => {
-        if(!data.session){
-          resolve();
-        }else{
-          reject(new Error('Сначала авторизуйтесь!'))
-        }
-      })
-    })
+  logout() {
+    return new Promise((resolve) => VK.Auth.revokeGrants(resolve))
   },
   async init() {
     this.photoCache = {};
@@ -84,11 +77,11 @@ export default {
     }
     return this.callApi('friends.get', params);
   },
-  getUsers(ids){
+  getUsers(ids) {
     const params = {
       fields: ['photo_50, photo_100'],
     }
-    if(ids !== undefined){
+    if (ids !== undefined) {
       params.user_ids = ids;
     }
     return this.callApi('users.get', params);
@@ -107,5 +100,27 @@ export default {
     photos = await this.getPhotos(id);
     this.photoCache[id] = photos;
     return photos;
-  }
+  },
+  async like(photo) {
+      return new Promise((resolve, reject) => {
+        const response = await fetch(`/loft-photo/api/?method=like&photo=${photo}`, {
+          method: 'GET',
+          header: {
+            'vk_token': this.vkToken
+          }
+        })
+        if(response.status >= 400){
+          
+        }else{
+  
+        }
+      })
+  },
+
+  async photoStats(photo) { },
+
+  async getComments(photo) { },
+
+  async postComment(photo, text) { },
+
 };

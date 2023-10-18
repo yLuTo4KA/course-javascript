@@ -13,7 +13,7 @@ export default {
                     await model.init();
                     location.hash = '#main';
                     await mainPage.getNextPhoto();
-                }catch(error){
+                } catch (error) {
                     console.log(error);
                     location.hash = '#login';
                 }
