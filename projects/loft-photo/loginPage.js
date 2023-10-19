@@ -4,7 +4,6 @@ import mainPage from './mainPage';
 
 export default {
     handleEvents() {
-
         document
             .querySelector('.page-login-button')
             .addEventListener('click', async () => {

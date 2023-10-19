@@ -6,15 +6,17 @@ import { doc } from 'prettier';
 export default {
     async getNextPhoto() {
         const { friend, id, url } = await model.getNextPhoto();
-
+        // const photoStats = await model.photoStats(id);
         this.setFriendAndPhoto(friend, id, url);
         this.setCurrentUserInfo(model.authorizeUser[0]);
 
     },
 
     setFriendAndPhoto(friend, id, url, stats) {
+        const photoStats = model.photoStats(id);
+        console.log(photoStats)
         this.currentFriend = friend;
-
+        
         const compPhoto = document.querySelector('.component-photo');
         const compHeaderPhoto = document.querySelector('.component-header-photo');
         const compHeaderName = document.querySelector('.component-header-name');
@@ -31,6 +33,7 @@ export default {
     setLikes(total, liked) { },
 
     setComments(total) { },
+
     handleEvents() {
         let startFrom;
         let endTouch;

@@ -23,7 +23,7 @@ export default {
     const size = this.findSize(photo);
     return {
       friend: friend,
-      id: friend.id,
+      id: photo.id,
       url: size.url
     }
   },
@@ -101,26 +101,43 @@ export default {
     this.photoCache[id] = photos;
     return photos;
   },
+  async getData(method, photo){
+    const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
+      method: 'GET',
+      header: {
+        'vk_token': this.vkToken
+      }
+    });
+    const data = await response.json();
+    return data;
+  },
+  async postData(method, photo, text){
+    const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
+      method: 'POST',
+      header: {
+        'vk_token': this.vkToken
+      },
+      body: JSON.stringify({text: text})
+    })
+  },
   async like(photo) {
-      return new Promise((resolve, reject) => {
-        const response = await fetch(`/loft-photo/api/?method=like&photo=${photo}`, {
-          method: 'GET',
-          header: {
-            'vk_token': this.vkToken
-          }
-        })
-        if(response.status >= 400){
-          
-        }else{
+    const method = 'like';
+    return this.getData(method, photo);
+  },
   
-        }
-      })
+  async photoStats(photo) { 
+    const method = 'photoStats';
+    return this.getData(method, photo)
   },
 
-  async photoStats(photo) { },
+  async getComments(photo) {
+    const method = 'getComments';
+    return this.getData(method, photo);
+   },
 
-  async getComments(photo) { },
-
-  async postComment(photo, text) { },
+  async postComment(photo, text) { 
+   const method = 'postComment';
+   return this.postData(method, photo, text);
+  },
 
 };
