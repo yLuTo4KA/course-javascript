@@ -1,38 +1,80 @@
 import pages from './pages';
 import model from './model';
 import profilePage from './profilePage';
+import Handlebars from 'handlebars';
+
 import { doc } from 'prettier';
 
 export default {
     async getNextPhoto() {
         const { friend, id, url } = await model.getNextPhoto();
-        // const photoStats = await model.photoStats(id);
-        this.setFriendAndPhoto(friend, id, url);
+        const photoStats = await model.photoStats(id);
+        this.setFriendAndPhoto(friend, id, url, photoStats);
         this.setCurrentUserInfo(model.authorizeUser[0]);
-
+        
     },
 
     setFriendAndPhoto(friend, id, url, stats) {
-        const photoStats = model.photoStats(id);
-        console.log(photoStats)
-        this.currentFriend = friend;
-        
         const compPhoto = document.querySelector('.component-photo');
         const compHeaderPhoto = document.querySelector('.component-header-photo');
         const compHeaderName = document.querySelector('.component-header-name');
+
+        this.currentFriend = friend;
+        this.photoId = id;
+
         compPhoto.style.backgroundImage = `url('${url}')`;
         compHeaderPhoto.style.backgroundImage = `url('${friend.photo_50}')`;
         compHeaderName.textContent = `${friend.first_name ?? ''} ${friend.last_name ?? ''}`;
+        this.setLikes(stats.likes, stats.liked);
+        this.setComments(stats.comments);
     },
     setCurrentUserInfo(user) {
         const compFooterPhoto = document.querySelector('.component-footer-photo');
         compFooterPhoto.style.backgroundImage = `url('${user['photo_50']}')`
     },
-    async loadComments(photo) { },
+    async loadComments(photo) {
+        const comments = await model.getComments(photo);
+        // const commentsElements = commentsTemplate({
+        //     list: comments.map((comment)=>{
+        //         return{
+        //             name: `${comment.user.first_name ?? ''} ${comment.user.last_name ?? ''}`,
+        //             photo: comment.user.photo_50,
+        //             text: comment.text,
+        //         }
+        //     })
+        // });
+        const source = '{{#each list}}\n  <div class="component-comment">\n    <div class="component-comment-photo" style="background-image: url(\'{{photo}}\')"></div>\n    <div class="component-comment-content">\n      <div class="component-comment-name">{{name}}</div>\n      <div class="component-comment-text">{{text}}</div>\n    </div>\n  </div>\n{{/each}}';
+        const template = Handlebars.compile(source);
+        const commentsData = {
+            list: comments.map((comment)=>{
+                return{
+                    name: `${comment.user.first_name ?? ''} ${comment.user.last_name ?? ''}`,
+                    photo: comment.user.photo_50,
+                    text: comment.text
+                }
+            })
+        };
+        const el = document.createElement('div');
+        el.innerHTML = template(commentsData)
+        document.querySelector('.component-comments-container-list').innerHTML = '';
+        document.querySelector('.component-comments-container-list').append(el);
+        this.setComments(comments.length)
+     },
 
-    setLikes(total, liked) { },
+    setLikes(total, liked) { 
+        const compLikes = document.querySelector('.component-footer-container-social-likes');
+        compLikes.textContent = total;
+        if(liked){
+            compLikes.classList.add('liked');
+        }else{
+            compLikes.classList.remove('liked');
+        }
+    },
 
-    setComments(total) { },
+    setComments(total) { 
+        const compComment = document.querySelector('.component-footer-container-social-comments');
+        compComment.textContent = total;
+    },
 
     handleEvents() {
         let startFrom;
@@ -66,9 +108,34 @@ export default {
             .addEventListener('click', (e) => {
                 e.preventDefault();
                 exitBtn.classList.add('hidden');
-                profilePage.setUser(self.currentFriend);
+                profilePage.setUser(this.currentFriend);
                 location.hash = '#profile';
-            })
+            });
+        document.querySelector('.component-footer-container-social-likes').addEventListener('click', async(e)=>{
+            e.preventDefault();
+            const {likes, liked} = await model.like(this.photoId)
+            self.setLikes(likes, liked);
+        });
+        document.querySelector('.component-footer-container-social-comments').addEventListener('click', async(e)=>{
+            e.preventDefault();
+            document.querySelector('.component-comments').classList.remove('hidden');
+            await self.loadComments(self.photoId);
+        });
+        document.querySelector('.component-comments').addEventListener('click', (e)=>{
+            if(e.target === e.currentTarget){
+                document.querySelector('.component-comments').classList.add('hidden');
+            }
+        })
+        const input = document.querySelector('.component-comments-container-form-input');
+
+        document.querySelector('.component-comments-container-form-send').addEventListener('click', async(e)=>{
+            e.preventDefault();
+            if(input.value.trim().length){
+                await model.postComment(self.photoId, input.value.trim());
+                input.value = '';
+                await self.loadComments(self.photoId);
+            }
+        })
     },
 
 };

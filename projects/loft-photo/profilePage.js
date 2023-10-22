@@ -17,12 +17,14 @@ export default {
         const userPhotos = await model.getPhotos(user['id']);
 
         for (let i = 0; i < userPhotos.items.length; i++) {
+            const currentPhoto = userPhotos.items[i];
             const div = document.createElement('div');
             div.classList.add('component-user-photo');
-            div.style.backgroundImage = `url('${userPhotos.items[i].sizes[userPhotos.items[i].sizes.length - 1].url}')`;
-            div.addEventListener('click', (e) => {
+            div.style.backgroundImage = `url('${currentPhoto.sizes[userPhotos.items[i].sizes.length - 1].url}')`;
+            div.addEventListener('click', async (e) => {
                 e.preventDefault();
-                mainPage.setFriendAndPhoto(user, user.id, userPhotos.items[i].sizes[userPhotos.items[i].sizes.length - 1].url)
+                const photoStats = await model.photoStats(currentPhoto.id);
+                mainPage.setFriendAndPhoto(user, currentPhoto.id, currentPhoto.sizes[userPhotos.items[i].sizes.length - 1].url, photoStats)
                 location.hash = '#main';
             })
             compUserPhotosContainer.appendChild(div);

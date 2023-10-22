@@ -101,43 +101,65 @@ export default {
     this.photoCache[id] = photos;
     return photos;
   },
-  async getData(method, photo){
-    const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
-      method: 'GET',
-      header: {
-        'vk_token': this.vkToken
+
+
+
+  // async getData(method, photo){
+  //   const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
+  //     method: 'GET',
+  //     header: {
+  //       'vk_token': this.vkToken
+  //     }
+  //   });
+  //   return response.json();
+  // },
+  // async postData(method, photo, text){
+  //   const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
+  //     method: 'POST',
+  //     header: {
+  //       'vk_token': this.vkToken
+  //     },
+  //     body: JSON.stringify({text: text})
+  //   });
+  //   return response.json();
+  // },
+  async callServer(method, queryParams, body){
+    queryParams = {
+      ...queryParams,
+      method,
+    };
+    const query = Object.entries(queryParams).reduce((all, [name, value]) => {
+      all.push(`${name}=${encodeURIComponent(value)}`);
+      return all;
+    }, []);
+    const queryString = query.join('&');
+    const params = {
+      headers: {
+        vk_token: this.vkToken,
       }
-    });
-    const data = await response.json();
-    return data;
-  },
-  async postData(method, photo, text){
-    const response = await fetch(`/loft-photo/api/?method=${method}&photo=${photo}`, {
-      method: 'POST',
-      header: {
-        'vk_token': this.vkToken
-      },
-      body: JSON.stringify({text: text})
-    })
-  },
+    };
+    if(body){
+      params.method = 'POST';
+      params.body = JSON.stringify(body);
+    }
+    const response = await fetch(`/loft-photo/api/?${queryString}`, params); // Использовали queryString
+    return response.json();
+},
+
   async like(photo) {
     const method = 'like';
-    return this.getData(method, photo);
+    return this.callServer(method, {photo} );
   },
-  
   async photoStats(photo) { 
     const method = 'photoStats';
-    return this.getData(method, photo)
+    return this.callServer(method, {photo} )
   },
-
   async getComments(photo) {
     const method = 'getComments';
-    return this.getData(method, photo);
+    return this.callServer(method, { photo });
    },
-
   async postComment(photo, text) { 
    const method = 'postComment';
-   return this.postData(method, photo, text);
+   return this.callServer(method, { photo }, { text });
   },
-
 };

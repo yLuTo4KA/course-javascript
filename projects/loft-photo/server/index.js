@@ -11,66 +11,45 @@ const DB = {
 const methods = {
   like(req, res, url, vkUser) {
     const photoId = url.searchParams.get('photo');
-    const userToken = req.header['vk_token'];
-    if(!userToken){
-      res.statusCode = 401;
-      res.end('Пользователь не авторизован');
-      return;
+    let photoLikes = DB.likes.get(photoId);
+    if(!photoLikes){
+      photoLikes = new Map();
+      DB.likes.set(photoId, photoLikes);
     }
-    if(DB.likes.has(photoId) && DB.likes.get(photoId).has(userToken)){
-      DB.likes.get(photoId).delete(userToken);
-      res.statusCode = 200;
-      res.end('Вы убрали лайк');
-      return;
-    }else{
-      if(!DB.likes.has(photoId)){
-        DB.likes.get(photoId, new Set());
-      }
-      DB.likes.get(photoId).add(userToken);
-      res.statusCode = 200;
-      res.end('Вы поставили лайк');
-      return;
+    if(photoLikes.get(vkUser.id)){
+      photoLikes.delete(vkUser.id);
+      return {likes: photoLikes.size, liked: false};
     }
+    photoLikes.set(vkUser.id, true);
+    return{likes: photoLikes.size, liked: true};
   },
   photoStats(req, res, url, vkUser) {
-    const photoId = url.searchParams.get('photo');
-    // const userToken = req.header['vk_token'];
-    const likeCount = DB.likes.has(photoId) ? DB.likes.get(photoId).size : 0;
-    const commentCount = DB.comments.has(photoId) ? DB.comments.get(photoId).length : 0;
+  const photoId = url.searchParams.get('photo');
+  console.log(photoId);
+  console.log(url.searchParams.get('method'));
+  const photoLikes = DB.likes.get(photoId);
+  const photoComments = DB.comments.get(photoId);
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({likes: likeCount, comments: commentCount}));
+
+  return{
+   likes: photoLikes?.size ?? 0,
+   liked: photoLikes?.has(vkUser.id) ?? false,
+   comments: photoComments?.length ?? 0
+  }
   },
   postComment(req, res, url, vkUser, body) {
     const photoId = url.searchParams.get('photo');
-    const text = body.text;
+    let photoComments = DB.comments.get(photoId);
 
-    const userToken = req.header['vk_token'];
-    if(!userToken){
-      res.statusCode = 401;
-      res.end('Пользователь не авторизован');
-      return;
+    if(!photoComments){
+      photoComments = [];
+      DB.comments.set(photoId, photoComments)
     }
-    const comment = {user: vkUser, text: text};
-    if(!DB.comments.has(photoId)){
-      DB.comments.set(photoId, []);
-    }
-    DB.comments.get(photoId).push(comment);
-    res.statusCode = 200;
-    res.end('Комментарий отправлен');
+    photoComments.unshift({user: vkUser, text: body.text})
   },
   getComments(req, res, url) {
     const photoId = url.searchParams.get('photo');
-    if(!DB.comments.has(photoId)){
-      res.statusCode = 404;
-      res.end('Комментариев нет!');
-      return;
-    }
-    const comments = DB.comments.get(photoId);
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(comments));
+    return DB.comments.get(photoId) ?? [];
   },
 };
 
