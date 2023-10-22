@@ -142,7 +142,7 @@ export default {
       params.method = 'POST';
       params.body = JSON.stringify(body);
     }
-    const response = await fetch(`/loft-photo/api/?${queryString}`, params); // Использовали queryString
+    const response = await fetch(`/loft-photo/api/?${queryString}`, params);
     return response.json();
 },
 
