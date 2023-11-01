@@ -71,9 +71,12 @@ export default {
       });
     });
   },
-  getFriends() {
+  getFriends(id) {
     const params = {
       fields: ['photo_50, photo_100'],
+    }
+    if(id !== undefined){
+      params.user_id = id;
     }
     return this.callApi('friends.get', params);
   },

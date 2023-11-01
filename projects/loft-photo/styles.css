@@ -11,7 +11,16 @@ body {
 a {
     text-decoration: none;
 }
+.link--active{
+    background-color: #191919;
+    color: white !important;
+}
+ul, li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
+}
 /* app */
 
 #app {
@@ -346,4 +355,42 @@ a {
     font-size: 18px;
     line-height: 26px;
     margin-top: 8px;
+}
+.page-profile .component-user-info-nav{
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 26px;
+    margin-top: 8px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.page-profile .component-user-info-nav a{
+    color: black;
+    border: 1px solid black;
+    padding: 5px 0;
+    width: 100%;
+    text-align: center;
+}
+.page-profile .component-user-info-nav a:first-child{
+    border-right: none;
+}
+.component-user-friends__list{
+    padding: 20px 10px;
+}
+.friend__item{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.friend__item .friend__photo{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    overflow: hidden;
+    margin-right: 10px;
+}
+.friend__item .friend__name{
+    color: initial;
 }
