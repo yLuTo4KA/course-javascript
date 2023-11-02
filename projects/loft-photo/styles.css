@@ -394,3 +394,13 @@ ul, li {
 .friend__item .friend__name{
     color: initial;
 }
+
+
+.component-user-info-search{
+    width: 100%;
+}
+.component-user-info-search #search-friend{
+    width: 100%;
+    font-size: 24px;
+    padding: 5px;    
+}
